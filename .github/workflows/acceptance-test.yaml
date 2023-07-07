@@ -1,0 +1,85 @@
+name: Acceptance Test
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+  workflow_dispatch:
+
+jobs:
+  acceptance-test:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+
+    # services:
+    #   dynamodb:
+    #     image: "amazon/dynamodb-local:latest"
+    #     ports:
+    #       - "8000:8000"
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18.x
+
+      - name: Cache npm
+        id: cache-npm
+        uses: actions/cache@v3
+        env:
+          cache-name: cache-node-modules
+        with:
+          # npm cache files are stored in `~/.npm` on Linux/macOS
+          path: ~/.npm
+          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-build-${{ env.cache-name }}-
+            ${{ runner.os }}-build-
+            ${{ runner.os }}-
+
+      - name: Install deps
+        run: npm ci
+      #   env:
+      #     NPM_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      # - name: Check code
+      #   run: npm run check
+
+      # - name: Unit test
+      #   run: |
+      #     npm run test:unit
+
+      # - uses: aws-actions/setup-sam@v2
+      #   with:
+      #     use-installer: true
+
+      # - uses: aws-actions/configure-aws-credentials@v2
+      #   with:
+      #     role-to-assume: arn:aws:iam::989966476585:role/ci
+      #     aws-region: us-east-1
+
+      # - name: Build code
+      #   run: |
+      #     npm run build
+
+      # - name: Start app
+      #   run: |
+      #     npm run start:ci --network=${{ job.container.network }}
+
+      # - name: Seed database
+      #   run: |
+      #     node ./seed.mjs
+
+      # - name: Integration test
+      #   run: |
+      #     npm run test:integration
+
+      # - name: Archive log
+      #   uses: actions/upload-artifact@v3
+      #   with:
+      #     name: sam-log
+      #     path: |
+      #       sam.log

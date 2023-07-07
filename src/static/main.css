@@ -1,0 +1,36 @@
+@import url("https://fonts.googleapis.com/css2?family=Fira+Code&display=swap");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --scroll-primary: rgba(102, 51, 153, 0);
+  --scroll-secondary: rgba(142, 144, 146, 0.603);
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--scroll-secondary) var(--scroll-primary);
+}
+
+/* Chrome, Edge, and Safari */
+*::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+
+*::-webkit-scrollbar-track {
+  background: var(--scroll-primary);
+  border-radius: 5px;
+}
+
+*::-webkit-scrollbar-thumb {
+  background-color: var(--scroll-secondary);
+  border-radius: 14px;
+  border: 4px solid var(--scroll-primary);
+}
+
+[x-cloak] {
+  display: none !important;
+}
