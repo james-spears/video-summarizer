@@ -81,7 +81,6 @@ document.addEventListener("alpine:init", () => {
       }
 
       const transcription = await transcribe(file);
-      this.message = "Transcription successful";
 
       async function summarize(text: string) {
         const prompt = `Summarize the key points in this video transcript:
@@ -108,7 +107,9 @@ document.addEventListener("alpine:init", () => {
         return response.json();
       }
 
+      this.message = "Summarizing Text";
       const summary = await summarize(transcription.text);
+      this.message = "";
       this.summary = "Summary: " + summary.choices[0].text;
     },
     submitForm() {
