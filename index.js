@@ -11,7 +11,7 @@ app.use((_, res, next) => {
     next();
 });
 
-app.use(express.static('dist/public'))
+app.use(express.static('dist'))
 
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`)
