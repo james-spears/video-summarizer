@@ -24,7 +24,7 @@ if (!existsSync("dist")) {
   mkdirSync("dist");
 }
 
-cpSync("public", "dist/public", {
+cpSync("public", "dist", {
   recursive: true,
 });
 
@@ -39,7 +39,7 @@ function render(template) {
   // };
 
   const html = eta.renderString(str, data);
-  const output = template.replace("src/static/", "dist/public/");
+  const output = template.replace("src/static/", "dist/");
 
   if (!existsSync(dirname(output))) {
     mkdirSync(dirname(output));
@@ -55,26 +55,26 @@ function render(template) {
 
 pages.forEach(render);
 
-const templates = sync("src/static/**/*.eta");
+// const templates = sync("src/static/**/*.eta");
 
-console.table(templates.map((template) => ({ template })));
+// console.table(templates.map((template) => ({ template })));
 
-function copyTemplate(template) {
-  const str = readFileSync(join(__dirname, template), "utf-8");
-  const output = template.replace("src/static/", "dist/templates/");
+// function copyTemplate(template) {
+//   const str = readFileSync(join(__dirname, template), "utf-8");
+//   const output = template.replace("src/static/", "dist/templates/");
 
-  if (!existsSync(dirname(output))) {
-    mkdirSync(dirname(output), {
-      recursive: true,
-    });
-  }
+//   if (!existsSync(dirname(output))) {
+//     mkdirSync(dirname(output), {
+//       recursive: true,
+//     });
+//   }
 
-  try {
-    writeFileSync(output, str);
-    // file written successfully
-  } catch (err) {
-    console.error(err);
-  }
-}
+//   try {
+//     writeFileSync(output, str);
+//     // file written successfully
+//   } catch (err) {
+//     console.error(err);
+//   }
+// }
 
-templates.forEach(copyTemplate);
+// templates.forEach(copyTemplate);
