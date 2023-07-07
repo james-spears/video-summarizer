@@ -1,0 +1,4 @@
+/*
+  Content-Security-Policy: default-src 'self';
+  Cross-Origin-Embedder-Policy: require-corp;
+  Cross-Origin-Opener-Policy: same-origin;
