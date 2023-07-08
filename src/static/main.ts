@@ -115,6 +115,7 @@ document.addEventListener("alpine:init", () => {
     submitForm() {
       console.log("file", typeof this.file);
       console.log("key", this.key);
+      this.summary = "";
       this.transcode();
     },
   }));

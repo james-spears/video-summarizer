@@ -6,10 +6,11 @@
   "main": "index.js",
   "scripts": {
     "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js --detectOpenHandles",
-    "prebuild": "node ./build.js && tailwindcss -i ./src/static/main.css -o ./dist/main.css",
+    "prebuild": "node build.js && tailwindcss -i ./src/static/main.css -o ./dist/main.css",
     "prestart": "npm run build",
     "start": "pm2 start index.js",
-    "dev": "nodemon -x \"npm start\" -w ./src -i ./dist -e ts,html,css,eta",
+    "start:dev": "node index.js",
+    "dev": "nodemon -x \"npm run start:dev\" -w ./src -i ./dist -e ts,html,css,eta",
     "build": "rollup -c rollup.config.js",
     "format": "prettier -w .",
     "lint": "eslint . --fix"
