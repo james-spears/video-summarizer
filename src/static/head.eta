@@ -11,5 +11,7 @@
   <meta name="msapplication-TileColor" content="#da532c" />
   <meta name="theme-color" content="#ffffff" />
   <base href="/" target="_blank">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/ffmpeg/0.11.6/ffmpeg.min.js" integrity="sha512-91IRkhfv1tLVYAdH5KTV+KntIZP/7VzQ9E/qbihXFSj0igeacWWB7bQrdiuaJVMXlCVREL4Z5r+3C4yagAlwEw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="https://unpkg.com/@ffmpeg/ffmpeg@0.11.6/dist/ffmpeg.min.js" integrity="sha384-m5or9sW5FUT2WQbj3UthGceVpwo9zSgHKdCugYKHl19lyXPvwO/oQcmq8Fw0FfaA" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <!-- <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/universal-sentence-encoder"></script> -->
 </head>
