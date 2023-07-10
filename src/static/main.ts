@@ -1,7 +1,12 @@
 import openai from "@/utils/openai";
-import videoToAudio from "@/utils/video-to-audio";
+// import videoToAudio from "@/utils/video-to-audio";
 import Alpine from "alpinejs";
+import { FFmpeg } from "..";
+
 window.Alpine = Alpine;
+
+const { createFFmpeg, fetchFile } = window.FFmpeg;
+let ffmpeg: FFmpeg | null = null;
 
 document.addEventListener("alpine:init", () => {
   Alpine.data("demo", () => ({
@@ -59,22 +64,48 @@ document.addEventListener("alpine:init", () => {
       // Prevent default behavior (Prevent file from being opened)
       event.preventDefault();
     },
-    submitForm() {
+    async submitForm() {
       this.summary = [];
       const openaiClient = openai(this.key);
+      // const process = async (video: { file: File, summary: string; loading: boolean; transcription: string; }) => {
+      //   video.loading = true;
+      //   const convertedAudioDataObj = await videoToAudio(video.file);
+      //   if (convertedAudioDataObj) {
+      //     const file = new File([convertedAudioDataObj.data], "output.mpeg");
+      //     const transcription = await openaiClient.transcribe(file);
+      //     video.transcription = transcription.text;
+      //     const summary = await openaiClient.summarize(transcription.text);
+      //     video.summary = summary.choices[0].text;
+      //     video.loading = false;
+      //   }
+      // };
+      // Array.from<{ file: File, summary: string; loading: boolean; transcription: string; }>(this.videos).map(video => process(video));
       const process = async (video: { file: File, summary: string; loading: boolean; transcription: string; }) => {
         video.loading = true;
-        const convertedAudioDataObj = await videoToAudio(video.file);
-        if (convertedAudioDataObj) {
-          const file = new File([convertedAudioDataObj.data], "output.mpeg");
-          const transcription = await openaiClient.transcribe(file);
-          video.transcription = transcription.text;
-          const summary = await openaiClient.summarize(transcription.text);
-          video.summary = summary.choices[0].text;
-          video.loading = false;
+        if (ffmpeg === null) {
+          ffmpeg = createFFmpeg({ log: true });
         }
+        const { name } = video.file;
+        if (!ffmpeg.isLoaded()) {
+          await ffmpeg.load();
+        }
+        ffmpeg.FS("writeFile", name, await fetchFile(video.file));
+        await ffmpeg.run("-i", name, "output.mp3");
+        const data = ffmpeg.FS("readFile", "output.mp3");
+  
+        // const video = document.getElementById('output-video');
+        const blob = new Blob([data.buffer], { type: "audio/mpeg" });
+        // (<HTMLVideoElement>video).src = URL.createObjectURL(blob);
+        const file = new File([blob], "output.mp3");
+        const transcription = await openaiClient.transcribe(file);
+        video.transcription = transcription.text;
+        const summary = await openaiClient.summarize(transcription.text);
+        video.summary = summary.choices[0].text;
+        video.loading = false;
+      };
+      for (const video of Array.from<{ file: File, summary: string; loading: boolean; transcription: string; }>(this.videos)) {
+        await process(video);
       }
-      Array.from<{ file: File, summary: string; loading: boolean; transcription: string; }>(this.videos).forEach(video => process(video));
     },
   }));
 });

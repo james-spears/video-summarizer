@@ -51,8 +51,6 @@ export default async function (videoFileData: Blob): Promise<FileRef | void> {
               .catch(function (err) {
                 console.log("Rendering failed: " + err);
               });
-          }).catch(e => {
-            console.log(e);
           });
       };
       reader.readAsArrayBuffer(videoFileData);
