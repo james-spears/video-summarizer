@@ -30,7 +30,7 @@
     <h1 class="text-lg font-semibold my-2">Upload a video</h1>
     <form method=POST enctype="multipart/form-data" @submit.prevent="submitForm">
       <input x-ref="input" class="hidden" type="file" id="upload" name="video" accept="video/*" multiple>
-      <button @click="$refs.input.click()" type="button" :class="videos.length ? 'border-brand-500' : 'border-dashed border-gray-400 hover:border-gray-500 dark:border-gray-300 dark:hover:border-gray-400 text-gray-600 dark:text-gray-400 darkhover:text-gray-500'" class="border-2 relative block w-full rounded-lg p-12 text-center text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2 hover:underline" x-on:dragover="dragover($event, $el)" x-on:dragleave="dragleave($event, $el)" x-on:drop="drop($event, $el)">
+      <button @click="$refs.input.click()" type="button" :class="videos.length ? 'border-brand-500' : 'border-dashed border-gray-600 hover:border-gray-500 dark:border-gray-300 dark:hover:border-gray-400 text-gray-600 dark:text-gray-400 darkhover:text-gray-500'" class="border-2 relative block w-full rounded-lg p-12 text-center text-gray-600 dark:text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2 hover:underline" x-on:dragover="dragover($event, $el)" x-on:dragleave="dragleave($event, $el)" x-on:drop="drop($event, $el)">
         <template x-cloak x-if="!videos.length">
           <svg :class="videos.length ? 'text-brand-500' : ''" class="mx-auto h-12 w-12" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
@@ -41,7 +41,7 @@
             <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
         </template>
-        <span class="mt-2 block text-sm font-semibold" x-text="videos.length ? 'Video(s) loaded!' : 'Click here'"></span>
+        <span class="mt-2 block text-sm text-gray font-semibold" x-text="videos.length ? 'Video(s) loaded!' : 'Click here'"></span>
       </button>
       <div class="flex flex-col gap-4 pt-4">
         <label for="key">OpenAI API key:</label>
@@ -64,44 +64,36 @@
                 <path stroke-linecap="round" d="M15.75 10.5l4.72-4.72a.75.75 0 011.28.53v11.38a.75.75 0 01-1.28.53l-4.72-4.72M4.5 18.75h9a2.25 2.25 0 002.25-2.25v-9a2.25 2.25 0 00-2.25-2.25h-9A2.25 2.25 0 002.25 7.5v9a2.25 2.25 0 002.25 2.25z" />
               </svg>
               <div class="min-w-0 flex-auto">
-                <p class="text-sm font-semibold leading-6 text-gray-900 dark:text-gray-300" x-text="video.file.name"></p>
-                <p class="mt-1 truncate text-xs leading-5 text-gray-500" x-text="video.file.type"></p>
+                <p class="text-sm font-semibold leading-6 text-gray-900 dark:text-gray-300" x-text="video.input.name"></p>
+                <p class="mt-1 truncate text-xs leading-5 text-gray-500" x-text="video.input.type + ( video.progress ? ' - ' + video.progress : '' )"></p>
               </div>
             </div>
-            <div x-show="video.loading" class="flex justify-center pb-4" role="status">
-              <svg fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-brand-300 animate-pulse dark:text-gray-600">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              <span class="sr-only">Loading...</span>
+            <div class="flex justify-center pb-4" role="status">
+              <div x-show="video.progress.includes('%')">
+                <svg fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-brand-300 animate-pulse dark:text-gray-600">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span class="sr-only">Processing...</span>
+              </div>
+              <div x-show="video.progress.includes('Transcribing') || video.progress.includes('Summarizing')" role="status">
+                <svg aria-hidden="true" class="w-6 h-6 text-gray-200 animate-spin dark:text-gray-600 fill-brand-600" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z" fill="currentColor" />
+                  <path d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z" fill="currentFill" />
+                </svg>
+                <span class="sr-only">Loading...</span>
+              </div>
             </div>
-            <div x-show="video.summary && !video.loading" class="flex justify-center pb-4" role="status">
+            <div x-show="video.progress.includes('Complete')" class="flex justify-center pb-4" role="status">
               <svg class="text-brand-500 mx-auto h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
               <span class="sr-only">Completed</span>
             </div>
           </div>
-          <p class="mt-2" x-text="video.summary"></p>
+          <p class="mt-2 ml-10 text-sm" x-text="video.summary"></p>
         </li>
       </template>
     </ul>
-    <template x-if="!!message">
-      <div class="h-12 text-center">
-        <div class="flex justify-center">
-          <p class="my-2 text-sm" x-text="message + (progress && progress !== 100 ? ' ' + progress + '%' : '')"></p>
-          <span>&nbsp;</span>
-        </div>
-
-
-        <div class="flex justify-center pb-4" role="status">
-          <svg aria-hidden="true" class="w-8 h-8 text-gray-200 animate-spin dark:text-gray-600 fill-brand-600" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z" fill="currentColor" />
-            <path d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z" fill="currentFill" />
-          </svg>
-          <span class="sr-only">Loading...</span>
-        </div>
-      </div>
-    </template>
   </div>
   <script type="module" src="./main.js"></script>
 </body>
