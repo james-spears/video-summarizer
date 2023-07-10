@@ -64,9 +64,9 @@ document.addEventListener("alpine:init", () => {
       const openaiClient = openai(this.key);
       const process = async (video: { file: File, summary: string; loading: boolean; transcription: string; }) => {
         video.loading = true;
-        const convertedAudioDataObj = await videoToAudio(video.file, "mp3");
+        const convertedAudioDataObj = await videoToAudio(video.file);
         if (convertedAudioDataObj) {
-          const file = new File([convertedAudioDataObj.data], "output.mp3");
+          const file = new File([convertedAudioDataObj.data], "output.mpeg");
           const transcription = await openaiClient.transcribe(file);
           video.transcription = transcription.text;
           const summary = await openaiClient.summarize(transcription.text);

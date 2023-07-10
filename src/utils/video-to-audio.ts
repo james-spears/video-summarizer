@@ -1,19 +1,17 @@
-import { AudioContext } from 'standardized-audio-context';
-
 export interface FileRef {
     name: string;
     format: string;
     data: Blob;
 }
 
-export default async function (videoFileData: Blob, targetAudioFormat: string): Promise<FileRef | void> {
+export default async function (videoFileData: Blob): Promise<FileRef | void> {
   try {
-    targetAudioFormat = targetAudioFormat.toLowerCase();
     const reader = new FileReader();
     return new Promise((resolve) => {
       reader.onload = function (/* event: Event */) {
-        const contentType = 'audio/webm;codecs=opus';
-        const audioContext = new AudioContext();
+        const contentType = 'audio/mpeg';
+        const audioContext = new (window.AudioContext ||
+          window.webkitAudioContext)();
         let myBuffer;
         const sampleRate = 16000;
         const numberOfChannels = 1;
@@ -45,7 +43,7 @@ export default async function (videoFileData: Blob, targetAudioFormat: string): 
                     0,
                     videoFileData.name.lastIndexOf(".")
                   ),
-                  format: targetAudioFormat,
+                  format: 'mpeg',
                   data: blob,
                 };
                 resolve(convertedAudio);
