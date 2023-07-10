@@ -10,7 +10,7 @@ export default async function (videoFileData: Blob, targetAudioFormat: string): 
     const reader = new FileReader();
     return new Promise((resolve) => {
       reader.onload = function (/* event: Event */) {
-        const contentType = "audio/" + targetAudioFormat;
+        const contentType = 'audio/webm;codecs=opus';
         const audioContext = new (window.AudioContext ||
           window.webkitAudioContext)();
         let myBuffer;
@@ -52,6 +52,8 @@ export default async function (videoFileData: Blob, targetAudioFormat: string): 
               .catch(function (err) {
                 console.log("Rendering failed: " + err);
               });
+          }).catch(e => {
+            console.log(e);
           });
       };
       reader.readAsArrayBuffer(videoFileData);
