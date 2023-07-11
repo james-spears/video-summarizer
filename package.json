@@ -11,6 +11,7 @@
     "start": "pm2 start index.js",
     "dev": "nodemon -x \"npm run build && node index.js\" -w ./src -i ./dist -e ts,html,css,eta",
     "build": "rollup -c rollup.config.js",
+    "e2e": "npx playwright test",
     "format": "prettier -w .",
     "lint": "eslint . --fix"
   },

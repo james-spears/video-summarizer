@@ -30,7 +30,7 @@
     <h1 class="text-lg font-semibold my-2">Upload videos</h1>
     <form method=POST enctype="multipart/form-data" @submit.prevent="submitForm">
       <input x-ref="input" class="hidden" type="file" id="upload" name="video" accept="video/*" multiple>
-      <button @click="$refs.input.click()" type="button" :class="videos.length ? 'border-brand-500' : 'border-dashed border-gray-500 hover:border-gray-600 dark:border-gray-300 dark:hover:border-gray-100'" class="border-2 relative block w-full rounded-lg p-12 text-center text-gray-500 dark:text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2 hover:underline" x-on:dragover="dragover($event, $el)" x-on:dragleave="dragleave($event, $el)" x-on:drop="drop($event, $el)">
+      <button data-testid="upload-button" @click="$refs.input.click()" type="button" :class="videos.length ? 'border-brand-500' : 'border-dashed border-gray-500 hover:border-gray-600 dark:border-gray-300 dark:hover:border-gray-100'" class="border-2 relative block w-full rounded-lg p-12 text-center text-gray-500 dark:text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2 hover:underline" x-on:dragover="dragover($event, $el)" x-on:dragleave="dragleave($event, $el)" x-on:drop="drop($event, $el)">
         <template x-cloak x-if="!videos.length">
           <svg :class="videos.length ? 'text-brand-500' : ''" class="mx-auto h-12 w-12" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
@@ -45,23 +45,23 @@
       </button>
       <div class="flex flex-col gap-4 pt-4">
         <label for="key">OpenAI API key:</label>
-        <input x-model="key" id="key" name="key" type="key" autocomplete="key" placeholder="sk-..." required class="block w-full rounded-md border-0 dark:bg-white/5 px-3.5 py-2 text-gray-900 dark:text-gray-300 shadow-sm ring-1 ring-inset ring-gray-300 dark:ring-white/10 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-brand-600 sm:text-sm sm:leading-6" />
+        <input data-testid="openai-api-key" x-model="key" id="key" name="key" type="key" autocomplete="key" placeholder="sk-..." required class="block w-full rounded-md border-0 dark:bg-white/5 px-3.5 py-2 text-gray-900 dark:text-gray-300 shadow-sm ring-1 ring-inset ring-gray-300 dark:ring-white/10 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-brand-600 sm:text-sm sm:leading-6" />
       </div>
       <p class="mb-4 mt-1 mr-1 text-xs float-right text-gray-700 dark:text-gray-400">
         Need an API key?
         <a href="https://openai.com" class="font-semibold leading-6 text-brand-800 dark:text-brand-500 hover:text-brand-700 dark:hover:text-brand-400">Sign up for OpenAI API access</a>
       </p>
-      <button type="submit" class="mt-2 flex w-full justify-center rounded-md bg-brand-700 ring-1 ring-brand-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-brand-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-600">
+      <button data-testid="generate-summary" type="submit" class="mt-2 flex w-full justify-center rounded-md bg-brand-700 ring-1 ring-brand-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-brand-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-600">
         Generate Summary
       </button>
     </form>
     <ul role="list" class="divide-y divide-brand-300/80 [&>*:nth-child(2)]:!border-t-0">
       <template x-for="(video, index) in videos">
-        <li class="gap-x-6 py-4">
+        <li :data-testid="'video-item-' + index" class="gap-x-6 py-4">
           <div class="flex items-center justify-between">
             <div class="min-w-0 flex-auto">
               <figure id="video-container">
-                <video :id="'player-' + index" class="mb-4 rounded-lg" controls>
+                <video :data-testid="'video-player-' + index" :id="'player-' + index" class="mb-4 rounded-lg" controls>
                   Your browser does not support HTML video.
                 </video>
               </figure>
@@ -73,8 +73,8 @@
                     </svg>
                   </div>
                   <div>
-                    <p class="text-sm font-semibold leading-6 text-gray-900 dark:text-gray-300" x-text="video.input.name"></p>
-                    <p class="mt-1 truncate text-xs leading-5 text-gray-500" x-text="video.input.type + ( video.progress ? ' - ' + video.progress : '' )"></p>
+                    <p :data-testid="'video-name-' + index" class="text-sm font-semibold leading-6 text-gray-900 dark:text-gray-300" x-text="video.input.name"></p>
+                    <p :data-testid="'video-description-' + index" class="mt-1 truncate text-xs leading-5 text-gray-500" x-text="video.input.type + ( video.progress ? ' - ' + video.progress : '' )"></p>
                   </div>
                 </div>
                 <div class="flex justify-center pb-4" role="status">
@@ -101,7 +101,7 @@
               </div>
             </div>
           </div>
-          <p class="mt-2 ml-10 mr-6 text-sm" x-text="video.summary"></p>
+          <p :data-testid="'video-summary-' + index" class="mt-2 ml-10 mr-6 text-sm" x-text="video.summary"></p>
         </li>
       </template>
     </ul>
