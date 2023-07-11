@@ -14,9 +14,7 @@ export default [
       resolve({
         extensions: [".ts"],
       }),
-      typescript({
-        sourceMap: true,
-      }),
+      typescript(),
       terser(),
     ],
   }

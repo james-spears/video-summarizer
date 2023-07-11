@@ -18,7 +18,7 @@ document.addEventListener("alpine:init", () => {
         console.log("change");
         Array.from<File>(
           (this.$refs.input as HTMLInputElement).files || []
-        ).forEach((file) =>
+        ).forEach((file, index) => {
           this.videos.push({
             input: file,
             output: null,
@@ -26,7 +26,11 @@ document.addEventListener("alpine:init", () => {
             loading: false,
             progress: "",
             transcript: "",
-          })
+          });
+          this.$nextTick(() => {
+            (<HTMLVideoElement>document.getElementById(`player-${index}`)).src = URL.createObjectURL(file);
+          });
+        }
         );
       };
     },
