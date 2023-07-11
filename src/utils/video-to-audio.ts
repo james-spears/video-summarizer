@@ -1,10 +1,12 @@
+import { FFmpeg } from '..';
+
 export interface FileRef {
     name: string;
     format: string;
     data: Blob;
 }
 
-export default async function (videoFileData: Blob): Promise<FileRef | void> {
+export default async function videoToAudio(videoFileData: Blob): Promise<FileRef | void> {
   try {
     const reader = new FileReader();
     return new Promise((resolve) => {
@@ -173,4 +175,48 @@ function uint8ToString(buf: Uint8Array) {
     out += String.fromCharCode(buf[i]);
   }
   return out;
+}
+
+export type Video = {
+  input: File;
+  output: File;
+  summary: string;
+  loading: boolean;
+  progress: string;
+  transcription: string;
+};
+
+const { createFFmpeg, fetchFile } = window.FFmpeg;
+let ffmpeg: FFmpeg | null = null;
+
+export async function transcode(video: Video): Promise<Video> {
+  try {
+    video.loading = true;
+    if (ffmpeg === null) {
+      ffmpeg = createFFmpeg({ log: true });
+    }
+    const { name } = video.input;
+    if (!ffmpeg.isLoaded()) {
+      await ffmpeg.load();
+    }
+    ffmpeg.setProgress(({ ratio }) => {
+      video.progress = `Transcoding ${Math.floor(ratio * 100)}%`;
+    });
+    ffmpeg.FS("writeFile", name, await fetchFile(video.input));
+    await ffmpeg.run("-i", name, "output.mpeg");
+    const data = ffmpeg.FS("readFile", "output.mpeg");
+    const blob = new Blob([data.buffer], { type: "audio/mpeg" });
+    video.output = new File([blob], "output.mpeg");
+  } catch (error) {
+    try {
+        video.loading = true;
+        const blob = await videoToAudio(video.input);
+        if (blob) {
+          video.output = new File([blob.data], "output.mpeg");
+        }
+    } catch (error) {
+      video.progress = "Transcoding error";
+    }
+  }
+  return video;
 }

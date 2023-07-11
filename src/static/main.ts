@@ -1,21 +1,8 @@
 import openai from "@/utils/openai";
-// import videoToAudio from "@/utils/video-to-audio";
+import { Video, transcode } from '@/utils/video-to-audio';
 import Alpine from "alpinejs";
-import { FFmpeg } from "..";
 
 window.Alpine = Alpine;
-
-type Video = {
-  input: File;
-  output: File;
-  summary: string;
-  loading: boolean;
-  progress: string;
-  transcription: string;
-};
-
-const { createFFmpeg, fetchFile } = window.FFmpeg;
-let ffmpeg: FFmpeg | null = null;
 
 document.addEventListener("alpine:init", () => {
   Alpine.data("demo", () => ({
@@ -99,38 +86,6 @@ document.addEventListener("alpine:init", () => {
     async submitForm() {
       this.submited = true;
       const openaiClient = openai(this.key);
-      // const process = async (video: { file: File, summary: string; loading: boolean; transcription: string; }) => {
-      //   video.loading = true;
-      //   const convertedAudioDataObj = await videoToAudio(video.input);
-      //   if (convertedAudioDataObj) {
-      //     const file = new File([convertedAudioDataObj.data], "output.mpeg");
-      //     const transcription = await openaiClient.transcribe(file);
-      //     video.transcription = transcription.text;
-      //     const summary = await openaiClient.summarize(transcription.text);
-      //     video.summary = summary.choices[0].text;
-      //     video.loading = false;
-      //   }
-      // };
-      // Array.from<{ file: File, summary: string; loading: boolean; transcription: string; }>(this.videos).map(video => process(video));
-      const process = async (video: Video) => {
-        video.loading = true;
-        if (ffmpeg === null) {
-          ffmpeg = createFFmpeg({ log: true });
-        }
-        const { name } = video.input;
-        if (!ffmpeg.isLoaded()) {
-          await ffmpeg.load();
-        }
-        ffmpeg.setProgress(({ ratio }) => {
-          video.progress = `Transcoding ${Math.floor(ratio * 100)}%`;
-        });
-        ffmpeg.FS("writeFile", name, await fetchFile(video.input));
-        await ffmpeg.run("-i", name, "output.mp3");
-        const data = ffmpeg.FS("readFile", "output.mp3");
-        const blob = new Blob([data.buffer], { type: "audio/mpeg" });
-        video.output = new File([blob], "output.mp3");
-        return video;
-      };
       const analyze = async (video: Video) => {
         video.progress = "Transcribing";
         const transcription = await openaiClient.transcribe(video.output);
@@ -142,7 +97,7 @@ document.addEventListener("alpine:init", () => {
         video.progress = "Complete";
       };
       for (let video of Array.from<Video>(this.videos)) {
-        video = await process(video);
+        video = await transcode(video);
         analyze(video);
       }
       this.submitted = false;
